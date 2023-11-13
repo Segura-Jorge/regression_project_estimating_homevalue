@@ -53,7 +53,6 @@ def new_zillow_data():
         p.bathroomcnt,
         p.calculatedfinishedsquarefeet, 
         p.yearbuilt,
-        p.lotsizesquarefeet,
         p.fips,
         p.latitude,
         p.longitude,
@@ -64,14 +63,13 @@ def new_zillow_data():
     FROM properties_2017 AS p
     JOIN predictions_2017 AS pr ON p.id = pr.id
     JOIN propertylandusetype AS plt ON p.propertylandusetypeid = plt.propertylandusetypeid
-    WHERE p.propertylandusetypeid IN (246, 247, 260, 261, 262, 263, 264, 265, 266, 275, 279)
+    WHERE p.propertylandusetypeid IN (261)
       AND YEAR(pr.transactiondate) = 2017
       AND p.id IS NOT NULL
       AND p.bedroomcnt IS NOT NULL
       AND p.bathroomcnt IS NOT NULL
       AND p.calculatedfinishedsquarefeet IS NOT NULL
       AND p.yearbuilt IS NOT NULL
-      AND p.lotsizesquarefeet IS NOT NULL
       AND p.fips IS NOT NULL
       AND pr.transactiondate IS NOT NULL
       AND plt.propertylandusedesc IS NOT NULL
@@ -120,7 +118,6 @@ def prep_zillow(df):
     df = df.rename(columns = 
                    {'bedroomcnt':'bedrooms',
                     'bathroomcnt':'bathrooms',
-                    'lotsizesquarefeet':'lot_sqft',
                     'propertylandusedesc':'property_class',
                     'calculatedfinishedsquarefeet':'sqft',
                     'taxvaluedollarcnt':'taxvalue',
@@ -129,7 +126,7 @@ def prep_zillow(df):
     
     df = df.dropna()
     
-    make_ints = ['bedrooms','sqft','taxvalue','yearbuilt','lot_sqft']
+    make_ints = ['bedrooms','sqft','taxvalue','yearbuilt']
 
     for col in make_ints:
         df[col] = df[col].astype(int)
@@ -159,3 +156,35 @@ def split_data(df):
     test -> {test.shape}""")
     
     return train, validate, test
+
+
+def eval_dist(r, p, α=0.05):
+    if p > α:
+        return print(f"""The data is normally distributed""")
+    else:
+        return print(f"""The data is NOT normally distributed""")
+    
+    
+    
+    
+def eval_Spearman(r, p, α=0.05):
+    if p < α:
+        return print(f"""We reject H₀, there is a monotonic relationship.
+Spearman’s r: {r:2f}
+P-value: {p}""")
+    else:
+        return print(f"""We fail to reject H₀: that there is a monotonic relationship.
+Spearman’s r: {r:2f}
+P-value: {p}""")
+
+    
+    
+def eval_Pearson(r, p, α=0.05):
+    if p < α:
+        return print(f"""We reject H₀, there is a linear relationship with a Correlation Coefficient of {r:2f}.
+P-value: {p}""")
+    else:
+        return print(f"""We fail to reject H₀: that there is a linear relationship.
+Pearson’s r: {r:2f}
+P-value: {p}""")
+    
