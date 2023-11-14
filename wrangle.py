@@ -188,3 +188,17 @@ P-value: {p}""")
 Pearson’s r: {r:2f}
 P-value: {p}""")
     
+    
+def evaluate_reg(y, yhat):
+    '''
+    based on two series, y_act, y_pred, (y, yhat), we
+    evaluate and return the root mean squared error
+    as well as the explained variance for the data.
+    
+    returns: rmse (float), rmse (float)
+    '''
+    rmse = mean_squared_error(y, yhat, squared=False)
+    r2 = r2_score(y, yhat)
+    return rmse, r2
+
+
